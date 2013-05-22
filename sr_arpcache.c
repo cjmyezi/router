@@ -20,42 +20,6 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
     /* Fill this in */
 }
 
-void sr_send_arp_req(struct sr_instance *sr, struct sr_arpreq * req)
-{
-    struct sr_arp_hdr arp_hdr;
-    struct sr_if *interf;
-
-    interf = sr_get_interface(sr,req->packets->iface);
-
-    arp_hdr.ar_hdr = htons(arp_hrd_ethernet);
-    arp_hdr.ar_pro = htons(ethertype_ip);
-    arp_hdr.ar_hln = ETHER_ADDR_LEN;
-    arp_hdr.ar_pln = 4;//for ipv4
-    arp_hdr.ar_op = htons(arp_op_request);
-    memcpy(arp_hdr.ar_sha, interf->addr, ETHER_ADDR_LEN);
-    memset(arp_hdr.ar_tha, 0xff, ETHER_ADDR_LEN);
-    arp_hdr.ar_sip = interf->ip;
-    arp_hdr.ar_tip = req->ip;
-
-    sr_ethernet_hdr eth_hdr；
-    eth_hdr.ether_type = htons(ethertype_arp);
-    memset(eth_hdr.etherdhost,arp_hdr.ar_tha,ETHER_ADDR_LEN);
-    memset(eth_hdr.ether_shost,arp_hdr.ar_sha,ETHER_ADDR_LEN);
-
-    int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
-    uint8_t * pckt = malloc(len);
-    memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
-    memcpy(pckt+sizeof(eth_hdr),arp_hdr,sizeof(sr_arp_hdr_t));
-    print_hdrs(pckt, len);
-//    struct sr_rt *rt = sr_longest_prefix_match(sr, )
-
- //   sr_send_packet(sr, pckt,len,interf);
-
-
-}
-
-//struct sr_rt * get_longest_match
-
 /* You should not need to touch the rest of this code. */
 
 /* Checks if an IP->MAC mapping is in the cache. IP is in network byte order.
@@ -120,7 +84,7 @@ struct sr_arpreq *sr_arpcache_queuereq(struct sr_arpcache *cache,
         new_pkt->buf = (uint8_t *)malloc(packet_len);
         memcpy(new_pkt->buf, packet, packet_len);
         new_pkt->len = packet_len;
-		new_pkt->iface = (char *)malloc(sr_IFACE_NAMELEN);
+        new_pkt->iface = (char *)malloc(sr_IFACE_NAMELEN);
         strncpy(new_pkt->iface, iface, sr_IFACE_NAMELEN);
         new_pkt->next = req->packets;
         req->packets = new_pkt;

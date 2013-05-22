@@ -110,26 +110,26 @@ typedef struct sr_icmp_t3_hdr sr_icmp_t3_hdr_t;
 struct sr_ip_hdr
   {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-    unsigned int ip_hl:4;		/* header length */
-    unsigned int ip_v:4;		/* version */
+    unsigned int ip_hl:4;   /* header length */
+    unsigned int ip_v:4;    /* version */
 #elif __BYTE_ORDER == __BIG_ENDIAN
-    unsigned int ip_v:4;		/* version */
-    unsigned int ip_hl:4;		/* header length */
+    unsigned int ip_v:4;    /* version */
+    unsigned int ip_hl:4;   /* header length */
 #else
 #error "Byte ordering ot specified " 
 #endif 
-    uint8_t ip_tos;			/* type of service */
-    uint16_t ip_len;			/* total length */
-    uint16_t ip_id;			/* identification */
-    uint16_t ip_off;			/* fragment offset field */
-#define	IP_RF 0x8000			/* reserved fragment flag */
-#define	IP_DF 0x4000			/* dont fragment flag */
-#define	IP_MF 0x2000			/* more fragments flag */
-#define	IP_OFFMASK 0x1fff		/* mask for fragmenting bits */
-    uint8_t ip_ttl;			/* time to live */
-    uint8_t ip_p;			/* protocol */
-    uint16_t ip_sum;			/* checksum */
-    uint32_t ip_src, ip_dst;	/* source and dest address */
+    uint8_t ip_tos;     /* type of service */
+    uint16_t ip_len;      /* total length */
+    uint16_t ip_id;     /* identification */
+    uint16_t ip_off;      /* fragment offset field */
+#define IP_RF 0x8000      /* reserved fragment flag */
+#define IP_DF 0x4000      /* dont fragment flag */
+#define IP_MF 0x2000      /* more fragments flag */
+#define IP_OFFMASK 0x1fff   /* mask for fragmenting bits */
+    uint8_t ip_ttl;     /* time to live */
+    uint8_t ip_p;     /* protocol */
+    uint16_t ip_sum;      /* checksum */
+    uint32_t ip_src, ip_dst;  /* source and dest address */
   } __attribute__ ((packed)) ;
 typedef struct sr_ip_hdr sr_ip_hdr_t;
 
@@ -170,7 +170,6 @@ enum sr_arp_hrd_fmt {
 };
 
 
-
 struct sr_arp_hdr
 {
     unsigned short  ar_hrd;             /* format of hardware address   */
@@ -183,7 +182,7 @@ struct sr_arp_hdr
     unsigned char   ar_tha[ETHER_ADDR_LEN];   /* target hardware address      */
     uint32_t        ar_tip;             /* target IP address            */
 } __attribute__ ((packed)) ;
-typedef struct  sr_arp_hdr_t;
+typedef struct sr_arp_hdr sr_arp_hdr_t;
 
 #define sr_IFACE_NAMELEN 32
 
