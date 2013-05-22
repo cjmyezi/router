@@ -88,33 +88,6 @@ struct sr_icmp_hdr {
 typedef struct sr_icmp_hdr sr_icmp_hdr_t;
 
 
-
-struct sr_arp_hdr generate_arp(enum sr_arp_opcode, )
-{
-  struct sr_arp_hdr res;
-  res.ar_hrd = 1; //ethernet
-  res.ar_pro = 2048; // ipv4
-  res.ar_hln = 6; // networks using 802 MAC addresses
-  res.ar_pln = 4; // ipv4
-  if (sr_arp_opcode == arp_op_reply)
-  {
-    res.ar_op = 2;// 2 for reply
-    res.ar_sha = NULL; // change it to correct sender hardware addr
-    res.ar_sip = 0;//change it to correct sender IP addr
-    res.ar_tha = NULL; //change it to correct target hardware addr
-    res.ar_tip = 0;//change it to correct target IP addr
-  }
-  else
-  {
-    res.ar_op = 1;// 1 for request
-    res.ar_sha = NULL; // change it to correct sender hardware addr
-    res.ar_sip = 0;//change it to correct sender IP addr
-    res.ar_tha = NULL; //change it to correct target hardware addr
-    res.ar_tip = 0;//change it to correct target IP addr
-  }
-
-}
-
 /* Structure of a type3 ICMP header
  */
 struct sr_icmp_t3_hdr {
