@@ -22,6 +22,8 @@
 #include "sr_arpcache.h"
 #include "sr_utils.h"
 
+
+
 /*---------------------------------------------------------------------
  * Method: sr_init(void)
  * Scope:  Global
@@ -78,7 +80,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   printf("*** -> Received packet of length %d \n",len);
 
-  /* fill in code here */
+  print_hdrs(packet,len);
 
 }/* end sr_ForwardPacket */
 
