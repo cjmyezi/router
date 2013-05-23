@@ -90,36 +90,12 @@ void sr_handlepacket(struct sr_instance* sr,
   sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *) packet;
   /* handling ip header*/
   if (ethtype == ethertype_ip) { 
-    minlength += sizeof(sr_ip_hdr_t);
-    if (len < minlength) {
-      fprintf(stderr, "Failed to process IP header, insufficient length\n");
-      return;
-    }
     handle_ip(sr,packet,len,interface);
-    // sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *) (packet + sizeof(sr_ethernet_hdr_t));
-    // uint8_t ip_proto = ip_protocol(buf + sizeof(sr_ethernet_hdr_t));
-    // /* handling icmp msgs */
-    // if (ip_proto == ip_protocol_icmp) { /* ICMP */
-    //   minlength += sizeof(sr_icmp_hdr_t);
-    //   if (length < minlength)
-    //     fprintf(stderr, "Failed to process ICMP header, insufficient length\n");
-    //   else
-    //   {
-    //     sr_icmp_hdr_t *icmp_hdr = (sr_icmp_hdr_t)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
-    //     //add code to handle icmp msgs
-    //   }
-    // }
   }
 
   /* handling ARP msgs*/
   else if (ethtype == ethertype_arp) {
         handle_arp(sr,packet,len,interface);
-//      if (arp_hdr->ar_op == arp_op_request || )
-//        handle_arp_request(sr, arp_hdr);//towrite
-//      else if (arp_hdr->ar_op == arp_op_reply)
-//        handle_arp_reply(sr,arp_hdr);
-//      else
-//        fprintf(stderr, "Unrecognized ARP Type: %d\n", arp_hdr->ar_op);
   }
   else {
     fprintf(stderr, "Unrecognized Ethernet Type: %d\n", ethtype);
@@ -202,5 +178,5 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
 {
-
+  return;
 }
