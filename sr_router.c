@@ -376,7 +376,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     icmp_hdr->icmp_sum = 0;
     icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 
-    print_hdr_icmp(icmp_hdr);
+    print_hdr_icmp((uint8_t *)icmp_hdr);
 
     unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
     sr_ip_hdr_t * pkt = malloc(total_len);
@@ -408,7 +408,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
     memcpy((uint8_t *) pkt+pkt->ip_hl*4, icmp_hdr, icmp_len);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
-    print_hdr_ip(pkt);
+    print_hdr_ip((uint8_t *)pkt);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
     free(pkt);
@@ -436,7 +436,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   eth_p->ether_type = htons(ethertype_ip);
   memcpy(eth_p->ether_shost, interf->addr, ETHER_ADDR_LEN);
 
-  print_hdr_eth(eth_p, total_len);
+  print_hdr_eth((uint8_t *)eth_p);
 
   struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw.s_addr);
   if (entry)
