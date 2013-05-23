@@ -13,7 +13,7 @@
 
 void arp_req_sender(struct sr_instance *sr, struct sr_arpreq * arp_req)
 {
-    if (difftime(time(0),req->sent) > 1.0)
+    if (difftime(time(0),arp_req->sent) > 1.0)
     {
         if (arp_req->times_sent >= 5)
         {
@@ -39,9 +39,9 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
 
     while(req)
     {
-        next = request->next;
+        next = req->next;
         arp_req_sender(sr,request);        
-        request = next;
+        req = next;
     }
 }
 
