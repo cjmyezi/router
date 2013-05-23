@@ -17,7 +17,16 @@ void arp_req_sender(struct sr_instance *sr, struct sr_arpreq * arp_req)
     {
         if (arp_req->times_sent >= 5)
         {
-
+            struct sr_packet * pkt;
+            for (pkt = arp_req->packets; pkt!=NULL; pkt = pkt->next)
+            {
+                sr_ip_hdr_t * ip_hdr = (sr_ip_hdr_t *) (pkt->buf + sizeof(sr_ethernet_hdr_t));
+                if (ip_hdr->ip_p != ip_protocol_icmp)
+                {
+                    send_icmp_packets(sr,3,1,ip_hdr,ntohs(ip_hdr->ip_len));
+                }
+            }
+            sr_arpreq_destroy(&sr->cache,req);
         }
         else
         {
