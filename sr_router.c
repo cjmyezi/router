@@ -152,21 +152,21 @@ fprintf(stderr, "finish handling arp request\n");
 void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 {
   fprintf(stderr, "Start to reply to arp request\n");
-    struct sr_arp_hdr arp_reply;
+    sr_arp_hdr_t * arp_reply = malloc(sizeof(sr_arp_hdr_t));
 
     struct sr_if *interf;
 
     interf = sr_get_interface(sr, interface);
 
-    arp_reply.ar_hrd = htons(arp_hrd_ethernet);
-    arp_reply.ar_pro = htons(ethertype_ip);
-    arp_reply.ar_hln = ETHER_ADDR_LEN;
-    arp_reply.ar_pln = 4; 
-    arp_reply.ar_op = htons(arp_op_reply);
-    memcpy(arp_reply.ar_sha, interf->addr, ETHER_ADDR_LEN);
-    memcpy(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
-    arp_reply.ar_sip = arp_hdr->ar_tip;
-    arp_reply.ar_tip = arp_hdr->ar_sip;
+    arp_reply->ar_hrd = htons(arp_hrd_ethernet);
+    arp_reply->ar_pro = htons(ethertype_ip);
+    arp_reply->ar_hln = ETHER_ADDR_LEN;
+    arp_reply->ar_pln = 4; 
+    arp_reply->ar_op = htons(arp_op_reply);
+    memcpy(arp_reply->ar_sha, interf->addr, ETHER_ADDR_LEN);
+    memcpy(arp_reply->ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
+    arp_reply->ar_sip = arp_hdr->ar_tip;
+    arp_reply->ar_tip = arp_hdr->ar_sip;
 
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
@@ -176,7 +176,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
-    memcpy(pckt+sizeof(eth_hdr),&arp_reply,sizeof(sr_arp_hdr_t));
+    memcpy(pckt+sizeof(eth_hdr), arp_reply,sizeof(sr_arp_hdr_t));
     print_hdrs(pckt, len);
 
 }
