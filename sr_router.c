@@ -80,6 +80,8 @@ void sr_handlepacket(struct sr_instance* sr,
   printf("*** -> Received packet of length %d \n",len);
 
   print_hdrs(packet, len);
+  sr_print_routing_table(sr);
+  sr_print_if_list(sr);
  /* Ethernet */
   int minlength = sizeof(sr_ethernet_hdr_t);
   if (len < minlength) {
