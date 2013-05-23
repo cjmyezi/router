@@ -260,14 +260,14 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
     arp_msg->ar_pln = 4; 
     arp_msg->ar_op = htons(arp_op_request);
     memcpy(arp_msg->ar_sha, interf->addr, ETHER_ADDR_LEN);
-    memcpy(arp_msg->ar_tha, 0xff , ETHER_ADDR_LEN);
+    memset(arp_msg->ar_tha, 0xff , ETHER_ADDR_LEN);
     arp_msg->ar_sip = interf->ip;
     arp_msg->ar_tip = arp_req->ip;
 
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
     memcpy(eth_hdr.ether_dhost,arp_msg->ar_tha,ETHER_ADDR_LEN);
-    memset(eth_hdr.ether_shost,arp_msg->ar_sha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_shost,arp_msg->ar_sha,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
@@ -311,7 +311,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
   if (type == 0) /*echo reply*/
   {
-    icmp_len = len - ip_pkt->ip_hl * 4;
+    icmp_len = len - ip_hdr->ip_hl * 4;
     icmp_hdr = malloc(icmp_len);
     memcpy(icmp_hdr, (uint8_t)ip_hdr+ip_hdr->ip_hl*4,icmp_len);
   }
@@ -376,7 +376,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, int len)
 
   struct sr_if * interf = sr_get_interface(sr, rt->interface);
 
-  int total_len = sizeof(sr_ethernet_hdr_t) + len;
+  unsigned int total_len = sizeof(sr_ethernet_hdr_t) + len;
   sr_ethernet_hdr_t * eth_p = malloc(total_len);
   memcpy((uint8_t *) eth_p + sizeof(sr_ethernet_hdr_t), ip_pkt, len);
 
@@ -386,7 +386,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, int len)
   if (entry)
   {
     memcpy(eth_p->ether_dhost, entry->mac, ETHER_ADDR_LEN);
-    int err = sr_send_packet(sr, (uint8_t)eth_p, total_len, interf->name);
+    int err = sr_send_packet(sr, (uint8_t) eth_p, total_len, interf->name);
     if (err == -1)
       fprintf(stderr, "Failure to send out ip packet\n");
     free(entry);
