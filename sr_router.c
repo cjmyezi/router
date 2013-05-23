@@ -89,11 +89,13 @@ void sr_handlepacket(struct sr_instance* sr,
   uint16_t ethtype = ethertype(packet);
   /* handling ip header*/
   if (ethtype == ethertype_ip) { 
+    fprintf(stderr, "Start to handle ip request\n");
     handle_ip(sr,packet,len,interface);
   }
 
   /* handling ARP msgs*/
   else if (ethtype == ethertype_arp) {
+    fprintf(stderr, "call handle arp\n");
     handle_arp(sr,packet,len,interface);
   }
   else {
