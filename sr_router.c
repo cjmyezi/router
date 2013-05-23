@@ -176,7 +176,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
-    memcpy(pckt+sizeof(eth_hdr),arp_reply,sizeof(sr_arp_hdr_t));
+    memcpy(pckt+sizeof(eth_hdr),&arp_reply,sizeof(sr_arp_hdr_t));
     print_hdrs(pckt, len);
 
 }
