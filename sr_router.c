@@ -188,6 +188,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   sr_ip_hdr_t *ip_hdr;
 
   ip_hdr = (sr_ip_hdr_t *)(pckt + sizeof(sr_ethernet_hdr_t));
+  unsigned int ip_len = len - sizeof(sr_ethernet_hdr_t);
   uint16_t r_cksm = ip_hdr->ip_sum;
   ip_hdr->ip_sum = 0;
   uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
@@ -205,9 +206,11 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
     fprintf(stderr, "Incorrect checksum\n");
     return;
   }
+  ip_hdr->ip_sum = e_cksm;
 
   struct sr_if * iter_if = sr->if_list;
   int flag = 0;
+
   while(iter_if!=NULL && flag == 0)
   {
     if (iter_if->ip == ip_hdr->ip_dst)
@@ -216,6 +219,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   }
 
   fprintf(stderr, "the flag is %d\n",flag );
+  print_addr_ip_int(ip_hdr->ip_dst);
 
 
   if (flag)
@@ -372,6 +376,8 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     icmp_hdr->icmp_sum = 0;
     icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 
+    print_hdr_icmp(icmp_hdr);
+
     unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
     sr_ip_hdr_t * pkt = malloc(total_len);
 
@@ -402,6 +408,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
     memcpy((uint8_t *) pkt+pkt->ip_hl*4, icmp_hdr, icmp_len);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
+    print_hdr_ip(pkt);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
     free(pkt);
@@ -429,7 +436,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   eth_p->ether_type = htons(ethertype_ip);
   memcpy(eth_p->ether_shost, interf->addr, ETHER_ADDR_LEN);
 
-  print_hdrs(eth_p, total_len);
+  print_hdr_eth(eth_p, total_len);
 
   struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw.s_addr);
   if (entry)
