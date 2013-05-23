@@ -169,28 +169,28 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 
 }
 
-void reply_arp(struct sr_instance *sr, sr_arp_hdr_t arp_hdr, char * interface)
+void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 {
     struct sr_arp_hdr arp_reply;
 
     struct sr_if *interf;
 
-    interf = sr_get_interface(sr,req->packets->iface);
+    interf = sr_get_interface(sr, interface);
 
     arp_reply.ar_hdr = htons(arp_hrd_ethernet);
     arp_reply.ar_pro = htons(ethertype_ip);
     arp_reply.ar_hln = ETHER_ADDR_LEN;
     arp_reply.ar_pln = 4;//for ipv4
     arp_reply.ar_op = htons(arp_op_reply);
-    memcpy(arp_reply.ar_sha, interface->addr, ETHER_ADDR_LEN);
+    memcpy(arp_reply.ar_sha, interf->addr, ETHER_ADDR_LEN);
     memset(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
-    arp_reply.ar_sip = interface->ip;
+    arp_reply.ar_sip = interf->ip;
     arp_reply.ar_tip = arp_hdr->ar_sip;
 
-    struct sr_ethernet_hdr eth_hdr；
+    struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
-    memset(eth_hdr.etherdhost,arp_hdr.ar_tha,ETHER_ADDR_LEN);
-    memset(eth_hdr.ether_shost,arp_hdr.ar_sha,ETHER_ADDR_LEN);
+    memset(eth_hdr.etherdhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
+    memset(eth_hdr.ether_shost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
@@ -202,15 +202,5 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t arp_hdr, char * interface)
 
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
 {
-
-}
-
-void sr_send_arp_req(struct sr_instance *sr, struct sr_arpreq * req)
-{
-
-//    struct sr_rt *rt = sr_longest_prefix_match(sr, )
-
- //   sr_send_packet(sr, pckt,len,interf);
-
 
 }
