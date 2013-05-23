@@ -218,7 +218,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
       handle_icmp(sr,ip_hdr);
     else if (ip_hdr->ip_p == 6 || ip_hdr->ip_p == 17)
     {
-
+      send_icmp_packets(sr,3,3,pckt,len);
     }
     else
       return;
@@ -226,14 +226,30 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   else
   {
     if (ip_hdr->ip_ttl == 1)
-      ;
+      send_icmp_packets(sr,11,0,pckt,len);
     else
-      ;
+      forward_packet(sr,pckt,len);
   }
 }
 
 void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr)
 {
+    int ip_len = ip_hdr->ip_hl*4;
+    sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) ip_hdr + ip_len);
+    int icmp_len = len - ip_len;
+    if (icmp->icmp_type == 8 && icmp->code == 0)
+    {
+      uint16_t r_cksm = icmp->icmp_sum;
+      icmp->icmp_sum = 0;
+      uint16_t e_cksm = cksum(icmp, icmp_len);
+      if (r_cksm == e_cksm)
+        send_icmp_packets(sr, 0. 0, ip_hdr, len);
+      else
+      {
+        fprintf(stderr, "Invalid ICMP echo request.\n");
+        return;
+      }
+    }
 
 }
 
