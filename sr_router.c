@@ -237,6 +237,66 @@ void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr)
 
 void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
 {
+    fprintf(stderr, "Start to request for arp\n");
+    sr_arp_hdr_t * arp_msg = malloc(sizeof(sr_arp_hdr_t));
+
+    struct sr_if *interf;
+
+    struct sr_rt *rt = find_longest_prefix_ip(sr, arp_req->ip);
+    if (!rt)
+    {
+      fprintf(stderr, "Failed to obtain forwarding ip address in routing table. \n", );
+      return;
+    }
+  
+
+    interf = sr_get_interface(sr, arp_req->packets->iface);
+
+    arp_msg->ar_hrd = htons(arp_hrd_ethernet);
+    arp_msg->ar_pro = htons(ethertype_ip);
+    arp_msg->ar_hln = ETHER_ADDR_LEN;
+    arp_msg->ar_pln = 4; 
+    arp_msg->ar_op = htons(arp_op_request);
+    memcpy(arp_msg->ar_sha, interf->addr, ETHER_ADDR_LEN);
+    memcpy(arp_msg->ar_tha, 0xff , ETHER_ADDR_LEN);
+    arp_msg->ar_sip = interf->ip;
+    arp_msg->ar_tip = arp_req->ip;
+
+    struct sr_ethernet_hdr eth_hdr;
+    eth_hdr.ether_type = htons(ethertype_arp);
+    memcpy(eth_hdr.ether_dhost,arp_msg->ar_tha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_shost,arp_msg->ar_sha,ETHER_ADDR_LEN);
+
+    int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
+    uint8_t * pckt = malloc(len);
+    memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
+    memcpy(pckt+sizeof(eth_hdr), arp_msg,sizeof(sr_arp_hdr_t));
+    int err = sr_send_packet(sr,pckt,len,interface);
+    if (err == -1)
+      fprintf(stderr,"error sending arp request packet\n");
+
+    free(arp_msg);
+    free(pckt);
+
+    fprintf(stderr,"finished sending arp request\n");
 
 
+}
+
+struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip)
+{
+  struct sr_rt* rt;
+  unsigned long best_len = 0;
+  struct sr_rt * best = NULL;
+
+  for (rt = sr->routing_table; rt != NULL; rt = rt->next)
+  {
+    if (((rt->dest.s_addr & rt->mask.s_addr) == (ip & rt->mask.s_addr))&& (best_len <= rt->mask.s_addr))
+    {
+        best_len = rt->mask.s_addr;
+        best = rt;
+    }
+
+  }
+  return best;
 }
