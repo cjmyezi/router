@@ -245,7 +245,7 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
     struct sr_rt *rt = find_longest_prefix_ip(sr, arp_req->ip);
     if (!rt)
     {
-      fprintf(stderr, "Failed to obtain forwarding ip address in routing table. \n", );
+      fprintf(stderr, "Failed to obtain forwarding ip address in routing table. \n");
       return;
     }
   
@@ -265,14 +265,14 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
     memcpy(eth_hdr.ether_dhost,arp_msg->ar_tha,ETHER_ADDR_LEN);
-    memcpy(eth_hdr.ether_shost,arp_msg->ar_sha,ETHER_ADDR_LEN);
+    memset(eth_hdr.ether_shost,arp_msg->ar_sha,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
     memcpy(pckt+sizeof(eth_hdr), arp_msg,sizeof(sr_arp_hdr_t));
     print_hdrs(pckt, len);
-    int err = sr_send_packet(sr,pckt,len,interf);
+    int err = sr_send_packet(sr,pckt,len,interf->name);
     if (err == -1)
       fprintf(stderr,"error sending arp request packet\n");
 
