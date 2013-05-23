@@ -105,6 +105,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
 void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
 {
+  fprintf(stderr, "Start to handle arp request\n");
   int minlength = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     if (len < minlength)
       fprintf(stderr, "Failed to process ARP header, insufficient length\n");
@@ -124,11 +125,12 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 
         interf = sr_get_interface(sr,interface);
         arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->ar_sip);
-
+fprintf(stderr, "tag1\n");
         if (arp_entry != 0)
           free(arp_entry);
         else
         {
+          fprintf(stderr, "tag2\n");
           arp_req = sr_arpcache_insert(&sr->cache, arp_hdr->ar_sha,arp_hdr->ar_sip);
           if (arp_req !=0)
           {
@@ -138,14 +140,16 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 
         if(interf->ip == arp_hdr->ar_tip && arp_hdr->ar_op == arp_op_request)
         {
+          fprintf(stderr, "Call reply arp\n");
           reply_arp(sr,arp_hdr,interface);
         }
     }
-
+fprintf(stderr, "finish handling arp request\n");
 }
 
 void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 {
+  fprintf(stderr, "Start to reply to arp request\n");
     struct sr_arp_hdr arp_reply;
 
     struct sr_if *interf;
