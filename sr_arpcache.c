@@ -26,7 +26,7 @@ void arp_req_sender(struct sr_instance *sr, struct sr_arpreq * arp_req)
                     send_icmp_packets(sr,3,1,ip_hdr,ntohs(ip_hdr->ip_len));
                 }
             }
-            sr_arpreq_destroy(&sr->cache,req);
+            sr_arpreq_destroy(&sr->cache,arp_req);
         }
         else
         {
