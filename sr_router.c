@@ -232,7 +232,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
     else if (ip_hdr->ip_p == 6 || ip_hdr->ip_p == 17)
     {
       fprintf(stderr, "identified as tcpip\n");
-      send_icmp_packets(sr,3,3,(sr_ip_hdr_t*)pckt,len);
+      send_icmp_packets(sr,3,3,ip_hdr,len);
     }
     else
     {
@@ -245,12 +245,12 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
     if (ip_hdr->ip_ttl == 1)
     {
       fprintf(stderr, "identified as ttl reaches\n");
-      send_icmp_packets(sr,11,0,(sr_ip_hdr_t*)pckt,len);
+      send_icmp_packets(sr,11,0,ip_hdr,len);
     }
     else
     {
       fprintf(stderr, "forward\n");
-      forward_packet(sr,(sr_ip_hdr_t*)pckt,len);
+      forward_packet(sr,ip_hdr,len);
     }
   }
 }
