@@ -324,16 +324,21 @@ struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip)
 {
   fprintf(stderr, "Find longest prefix ip\n");
   struct sr_rt* rt;
-  unsigned long best_len = 0;
+  uint32_t best_len = 0;
   struct sr_rt * best = NULL;
 
   for (rt = sr->routing_table; rt != NULL; rt = rt->next)
   {
-    if (((rt->dest.s_addr & rt->mask.s_addr) == (ip & rt->mask.s_addr))&& (best_len <= rt->mask.s_addr))
+    uint32_t prefix = (uint32_t) rt->mask.s_addr & ip;
+    if (prefix == (uint32_t)rt->dest.s_addr)
     {
+      if (prefix >= best_len)
+      {
         best_len = rt->mask.s_addr;
         best = rt;
+      }
     }
+  
 
   }
   return best;
