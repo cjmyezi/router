@@ -194,25 +194,51 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
   uint16_t r_cksm = ip_hdr->ip_sum;
 
+  ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
 
-  if (len < sizeof(sr_ip_hdr_t)+sizeof(sr_ethernet_hdr_t))
+  if (len < sizeof(sr_ip_hdr_t)+sizeof(sr_ethernet_hdr_t) || len != sizeof(sr_ethernet_hdr_t) + htons(ip_hdr->ip_len))
   {
-    fprintf(stderr, "Failed to handle IP packet, insufficient length\n");
+    fprintf(stderr, "Failed to handle IP packet, Incorrect length\n");
     return;
   }
+
   if (r_cksm != e_cksm)
   {
     fprintf(stderr, "Incorrect checksum\n", );
     return;
   }
 
-  ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
-
-  if (len < sizeof(sr_ethernet_hdr_t)+ ip_hdr->ip_hl*4)
+  struct sr_if * iter_if = sr->if_list;
+  bool flag = false;
+  while(iter_if!=NULL && flag == false)
   {
-    fprintf(stderr, "Failed to handle IP packet, insufficient length\n");
-    return;    
+    if (iter_if == ip_hdr->ip_dst)
+      flag = true;
+    iter_if = iter_if->next;
   }
+
+  if (flag)
+  {
+    if(ip_hdr->ip_p == ip_protocol_icmp)
+      handle_icmp(sr,ip_hdr);
+    else
+    {
+      //send ICMP error msg
+    }
+  }
+  else
+  {
+    //forward the packet
+  }
+}
+
+void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr)
+{
 
 }
 
+void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
+{
+
+  
+}
