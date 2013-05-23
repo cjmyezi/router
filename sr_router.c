@@ -187,7 +187,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t arp_hdr, char * interface)
     arp_reply.ar_sip = interface->ip;
     arp_reply.ar_tip = arp_hdr->ar_sip;
 
-    sr_ethernet_hdr eth_hdr；
+    struct sr_ethernet_hdr eth_hdr；
     eth_hdr.ether_type = htons(ethertype_arp);
     memset(eth_hdr.etherdhost,arp_hdr.ar_tha,ETHER_ADDR_LEN);
     memset(eth_hdr.ether_shost,arp_hdr.ar_sha,ETHER_ADDR_LEN);
