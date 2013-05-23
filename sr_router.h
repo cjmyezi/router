@@ -71,11 +71,11 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface);
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
 void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req);
-void handle_icmp(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr);
+void handle_icmp(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr, unsigned int len);
 struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip);
-void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, int len);
-void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_ip_hdr_t * ip_hdr, int len);
-void forward_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr, int len);
+void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt,  unsigned int len);
+void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_ip_hdr_t * ip_hdr, unsigned int len);
+void forward_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr, unsigned int len);
 
 
 /* -- sr_if.c -- */
