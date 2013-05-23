@@ -114,29 +114,27 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
     else
     {
       sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *) (pckt + sizeof(sr_ethernet_hdr_t));
-      /* (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)
-      {
-        fprintf(stderr, "Failed to process ARP request, invalid header\n" );
-        return;
-      }
-      else
-      {*/
         struct sr_arpentry *arp_entry;
         struct sr_arpreq *arp_req;
         struct sr_if* interf;
 
         interf = sr_get_interface(sr,interface);
         arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->ar_sip);
-fprintf(stderr, "tag1\n");
         if (arp_entry != 0)
           free(arp_entry);
         else
         {
-          fprintf(stderr, "tag2\n");
           arp_req = sr_arpcache_insert(&sr->cache, arp_hdr->ar_sha,arp_hdr->ar_sip);
           if (arp_req !=0)
           {
-            /*sr_arpreq_send_packets(sr, arp_req);*/
+            send_queued_packets(sr,pckt,len,interface);
+
+            struct sr_packet * pkt;
+            for (pkt = arp_req->packets; pkt!=NULL;pkt = pkt->next){
+              memcpy(((sr_ethernet_hdr_t *) (pkt->buf))->ether_dhost,arp_hdr->ar_sha, ETHER_ADDR_LEN)
+              sr_send_packet(sr,pkt->buf,pkt->len,pkt->iface);
+            }
+            sr_arpreq_destroy(&sr->cache, arp_req);
           }
         }
 
@@ -148,6 +146,7 @@ fprintf(stderr, "tag1\n");
     }
 fprintf(stderr, "finish handling arp request\n");
 }
+
 
 void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 {
@@ -190,9 +189,30 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* interface)
 {
-  int sum = len;
-  sum++;
-  sum--;
-  len = sum;
+  sr_ip_hdr_t *ip_hdr;
+  // fist do sanity check
+  uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
+  uint16_t r_cksm = ip_hdr->ip_sum;
+
+
+  if (len < sizeof(sr_ip_hdr_t)+sizeof(sr_ethernet_hdr_t))
+  {
+    fprintf(stderr, "Failed to handle IP packet, insufficient length\n");
+    return;
+  }
+  if (r_cksm != e_cksm)
+  {
+    fprintf(stderr, "Incorrect checksum\n", );
+    return;
+  }
+
+  ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
+
+  if (len < sizeof(sr_ethernet_hdr_t)+ ip_hdr->ip_hl*4)
+  {
+    fprintf(stderr, "Failed to handle IP packet, insufficient length\n");
+    return;    
+  }
+
 }
 
