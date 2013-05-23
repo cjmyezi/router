@@ -72,6 +72,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
 void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req);
 void handle_icmp(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr);
+struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip);
 
 /* -- sr_if.c -- */
 void sr_add_interface(struct sr_instance* , const char* );
