@@ -127,11 +127,9 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
           arp_req = sr_arpcache_insert(&sr->cache, arp_hdr->ar_sha,arp_hdr->ar_sip);
           if (arp_req !=0)
           {
-            send_queued_packets(sr,pckt,len,interface);
-
             struct sr_packet * pkt;
             for (pkt = arp_req->packets; pkt!=NULL;pkt = pkt->next){
-              memcpy(((sr_ethernet_hdr_t *) (pkt->buf))->ether_dhost,arp_hdr->ar_sha, ETHER_ADDR_LEN)
+              memcpy(((sr_ethernet_hdr_t *) (pkt->buf))->ether_dhost, arp_hdr->ar_sha, ETHER_ADDR_LEN);
               sr_send_packet(sr,pkt->buf,pkt->len,pkt->iface);
             }
             sr_arpreq_destroy(&sr->cache, arp_req);
@@ -190,7 +188,6 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* interface)
 {
   sr_ip_hdr_t *ip_hdr;
-  // fist do sanity check
   uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
   uint16_t r_cksm = ip_hdr->ip_sum;
 
@@ -240,5 +237,5 @@ void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr)
 void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
 {
 
-  
+
 }
