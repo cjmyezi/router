@@ -13,7 +13,8 @@
 
 #include <stdio.h>
 #include <assert.h>
-
+#include <stdlib.h>
+#include <string.h>
 
 #include "sr_if.h"
 #include "sr_rt.h"
@@ -189,7 +190,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
-    memset(eth_hdr.etherdhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
+    memset(eth_hdr.ether_dhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
     memset(eth_hdr.ether_shost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);

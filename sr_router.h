@@ -67,11 +67,14 @@ int sr_read_from_server(struct sr_instance* );
 /* -- sr_router.c -- */
 void sr_init(struct sr_instance* );
 void sr_handlepacket(struct sr_instance* , uint8_t * , unsigned int , char* );
-
+void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
+void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface);
+void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
 /* -- sr_if.c -- */
 void sr_add_interface(struct sr_instance* , const char* );
 void sr_set_ether_ip(struct sr_instance* , uint32_t );
 void sr_set_ether_addr(struct sr_instance* , const unsigned char* );
 void sr_print_if_list(struct sr_instance* );
+
 
 #endif /* SR_ROUTER_H */
