@@ -146,5 +146,5 @@ void sr_arpcache_dump(struct sr_arpcache *cache);
 int   sr_arpcache_init(struct sr_arpcache *cache);
 int   sr_arpcache_destroy(struct sr_arpcache *cache);
 void *sr_arpcache_timeout(void *cache_ptr);
-
+void arp_req_sender(struct sr_instance *sr, struct sr_arpreq * arp_req);
 #endif
