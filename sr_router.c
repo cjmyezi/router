@@ -188,12 +188,12 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* interface)
 {
   sr_ip_hdr_t *ip_hdr;
-  uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
+
+  ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
+  uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_len);
   uint16_t r_cksm = ip_hdr->ip_sum;
 
   fprintf(stderr, "%u %u\n", e_cksm,r_cksm);
-
-  ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
 
   if (len < sizeof(sr_ip_hdr_t)+sizeof(sr_ethernet_hdr_t) || len != sizeof(sr_ethernet_hdr_t) + htons(ip_hdr->ip_len))
   {
