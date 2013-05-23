@@ -79,6 +79,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   printf("*** -> Received packet of length %d \n",len);
 
+  print_hdrs(packet, len);
  /* Ethernet */
   int minlength = sizeof(sr_ethernet_hdr_t);
   if (len < minlength) {
@@ -212,28 +213,45 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
     iter_if = iter_if->next;
   }
 
+  fprintf(stderr, "the flag is %d\n",flag );
+
+
   if (flag)
   {
     if(ip_hdr->ip_p == ip_protocol_icmp)
+    {
+      fprintf(stderr, "identified is icmp\n");
       handle_icmp(sr,ip_hdr, len);
+    }
     else if (ip_hdr->ip_p == 6 || ip_hdr->ip_p == 17)
     {
+      fprintf(stderr, "identified as tcpip\n");
       send_icmp_packets(sr,3,3,(sr_ip_hdr_t*)pckt,len);
     }
     else
+    {
+      fprintf(stderr, "drop it 1\n");
       return;
+    }
   }
   else
   {
     if (ip_hdr->ip_ttl == 1)
+    {
+      fprintf(stderr, "identified as ttl reaches\n");
       send_icmp_packets(sr,11,0,(sr_ip_hdr_t*)pckt,len);
+    }
     else
+    {
+      fprintf(stderr, "forward\n");
       forward_packet(sr,(sr_ip_hdr_t*)pckt,len);
+    }
   }
 }
 
 void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr, unsigned int len)
 {
+  fprintf(stderr, "handling icmp\n");
     unsigned int ip_len = ip_hdr->ip_hl*4;
     sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) ip_hdr + ip_len);
     unsigned int icmp_len = len - ip_len;
@@ -304,6 +322,7 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
 
 struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip)
 {
+  fprintf(stderr, "Find longest prefix ip\n");
   struct sr_rt* rt;
   unsigned long best_len = 0;
   struct sr_rt * best = NULL;
@@ -322,6 +341,7 @@ struct sr_rt* find_longest_prefix_ip(struct sr_instance * sr, uint32_t ip)
 
 void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_ip_hdr_t * ip_hdr, unsigned int len)
 {
+  fprintf(stderr, "send icmp packets\n");
   sr_icmp_t3_hdr_t * icmp_hdr;
   unsigned int icmp_len;
 
@@ -382,6 +402,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
 void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int len)
 {
+  fprintf(stderr, "send ip packets\n");
   struct sr_rt *rt = find_longest_prefix_ip(sr,ip_pkt->ip_dst);
   if (!rt)
   {
@@ -398,6 +419,9 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
 
   eth_p->ether_type = htons(ethertype_ip);
   memcpy(eth_p->ether_shost, interf->addr, ETHER_ADDR_LEN);
+
+  print_hdrs(eth_p, total_len);
+
   struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw.s_addr);
   if (entry)
   {
