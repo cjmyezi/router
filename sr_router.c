@@ -190,7 +190,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   sr_ip_hdr_t *ip_hdr;
 
   ip_hdr = (sr_ip_hdr_t *)(pckt+sizeof(sr_ethernet_hdr_t));
-  uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_len);
+  uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
   uint16_t r_cksm = ip_hdr->ip_sum;
 
   fprintf(stderr, "%u %u\n", e_cksm,r_cksm);
