@@ -201,16 +201,16 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
 
   if (r_cksm != e_cksm)
   {
-    fprintf(stderr, "Incorrect checksum\n", );
+    fprintf(stderr, "Incorrect checksum\n");
     return;
   }
 
   struct sr_if * iter_if = sr->if_list;
-  bool flag = false;
-  while(iter_if!=NULL && flag == false)
+  int flag = 0;
+  while(iter_if!=NULL && flag == 0)
   {
-    if (iter_if == ip_hdr->ip_dst)
-      flag = true;
+    if (iter_if->ip == ip_hdr->ip_dst)
+      flag = 1;
     iter_if = iter_if->next;
   }
 
@@ -220,12 +220,10 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
       handle_icmp(sr,ip_hdr);
     else
     {
-      //send ICMP error msg
     }
   }
   else
   {
-    //forward the packet
   }
 }
 

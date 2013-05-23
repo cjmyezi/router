@@ -70,6 +70,9 @@ void sr_handlepacket(struct sr_instance* , uint8_t * , unsigned int , char* );
 void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
 void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface);
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface);
+void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req);
+void handle_icmp(struct sr_instance * sr, sr_ip_hdr_t * ip_hdr);
+
 /* -- sr_if.c -- */
 void sr_add_interface(struct sr_instance* , const char* );
 void sr_set_ether_ip(struct sr_instance* , uint32_t );
