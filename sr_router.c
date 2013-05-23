@@ -94,7 +94,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   /* handling ARP msgs*/
   else if (ethtype == ethertype_arp) {
-        handle_arp(sr,packet,len,interface);
+    handle_arp(sr,packet,len,interface);
   }
   else {
     fprintf(stderr, "Unrecognized Ethernet Type: %d\n", ethtype);
@@ -129,7 +129,7 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
           free(arp_entry);
         else
         {
-          arp_req = sr_arpcache_insert(&sr->cahce, arp_hdr->ar_sha,arp_hdr->ar_sip);
+          arp_req = sr_arpcache_insert(&sr->cache, arp_hdr->ar_sha,arp_hdr->ar_sip);
           if (arp_req !=0)
           {
             /*sr_arpreq_send_packets(sr, arp_req);*/
@@ -138,9 +138,10 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 
         if(interf->ip == arp_hdr->ar_tip && arp_hdr->ar_op == arp_op_request)
         {
-          reply_arp(sr,arp_hdr,interf);
+          reply_arp(sr,arp_hdr,interface);
         }
       }
+    }
 
 }
 
