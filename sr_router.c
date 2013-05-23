@@ -87,7 +87,6 @@ void sr_handlepacket(struct sr_instance* sr,
   }
 
   uint16_t ethtype = ethertype(packet);
-  sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *) packet;
   /* handling ip header*/
   if (ethtype == ethertype_ip) { 
     handle_ip(sr,packet,len,interface);
@@ -124,10 +123,10 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
         struct sr_if* interf;
 
         interf = sr_get_interface(sr,interface);
-        arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->sip);
+        arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->ar_sip);
 
         if (arp_entry != 0)
-          free(arp_entry)
+          free(arp_entry);
         else
         {
           arp_req = sr_arpcache_insert(&sr->cahce, arp_hdr->ar_sha,arp_hdr->ar_sip);
@@ -176,8 +175,11 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
 }
 
-void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
+void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* interface)
 {
-  return;
+  int sum = len;
+  sum++;
+  sum--;
+  len = sum;
 }
 
