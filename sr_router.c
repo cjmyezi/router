@@ -111,13 +111,13 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
     else
     {
       sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *) (pckt + sizeof(sr_ethernet_hdr_t));
-      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)
+      /* (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)
       {
         fprintf(stderr, "Failed to process ARP request, invalid header\n" );
         return;
       }
       else
-      {
+      {*/
         struct sr_arpentry *arp_entry;
         struct sr_arpreq *arp_req;
         struct sr_if* interf;
@@ -140,7 +140,6 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
         {
           reply_arp(sr,arp_hdr,interface);
         }
-      }
     }
 
 }
