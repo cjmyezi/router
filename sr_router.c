@@ -78,7 +78,139 @@ void sr_handlepacket(struct sr_instance* sr,
 
   printf("*** -> Received packet of length %d \n",len);
 
-  print_hdrs(packet,len);
+ /* Ethernet */
+  int minlength = sizeof(sr_ethernet_hdr_t);
+  if (len < minlength) {
+    fprintf(stderr, "Failed to process ETHERNET header, insufficient length\n");
+    return;
+  }
+
+  uint16_t ethtype = ethertype(packet);
+  sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *) packet;
+  /* handling ip header*/
+  if (ethtype == ethertype_ip) { 
+    minlength += sizeof(sr_ip_hdr_t);
+    if (len < minlength) {
+      fprintf(stderr, "Failed to process IP header, insufficient length\n");
+      return;
+    }
+    handle_ip(sr,packet,len,interface);
+    // sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *) (packet + sizeof(sr_ethernet_hdr_t));
+    // uint8_t ip_proto = ip_protocol(buf + sizeof(sr_ethernet_hdr_t));
+    // /* handling icmp msgs */
+    // if (ip_proto == ip_protocol_icmp) { /* ICMP */
+    //   minlength += sizeof(sr_icmp_hdr_t);
+    //   if (length < minlength)
+    //     fprintf(stderr, "Failed to process ICMP header, insufficient length\n");
+    //   else
+    //   {
+    //     sr_icmp_hdr_t *icmp_hdr = (sr_icmp_hdr_t)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+    //     //add code to handle icmp msgs
+    //   }
+    // }
+  }
+
+  /* handling ARP msgs*/
+  else if (ethtype == ethertype_arp) {
+        handle_arp(sr,packet,len,interface);
+//      if (arp_hdr->ar_op == arp_op_request || )
+//        handle_arp_request(sr, arp_hdr);//towrite
+//      else if (arp_hdr->ar_op == arp_op_reply)
+//        handle_arp_reply(sr,arp_hdr);
+//      else
+//        fprintf(stderr, "Unrecognized ARP Type: %d\n", arp_hdr->ar_op);
+    }
+  }
+  else {
+    fprintf(stderr, "Unrecognized Ethernet Type: %d\n", ethtype);
+  }
+
 
 }/* end sr_ForwardPacket */
 
+void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
+{
+  int minlength += sizeof(sr_arp_hdr_t);
+    if (len < minlength)
+      fprintf(stderr, "Failed to process ARP header, insufficient length\n");
+    else
+    {
+      sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *) (pckt + sizeof(sr_ethernet_hdr_t));
+      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ap_pro != 0x0800)//if the hardware type is not ethernet or if the arp protocol is not ip, the report error
+      {
+        fprintf(stderr, "Failed to process ARP request, invalid header\n" );
+        return;
+      }
+      else
+      {
+        struct sr_arpentry *arp_entry;
+        struct sr_arpreq *arp_req;
+        struct sr_if* interf;
+
+        interf = sr_get_interface(sr,interface);
+        arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->sip);
+
+        if (arp_entry != 0)
+          free(arp_entry)
+        else
+        {
+          arp_req = sr_arpcache_insert(&sr->cahce, arp_hdr->ar_sha,arp_hdr->ar_sip);
+          if (arp_req !=0)
+          {
+//            sr_arpreq_send_packets(sr, arp_req);
+          }
+        }
+
+        if(interf->ip == arp_hdr->ar_tip && arp_hdr->ar_op == arp_op_request)
+        {
+          reply_arp(sr,arp_hdr,interf);
+        }
+      }
+
+}
+
+void reply_arp(struct sr_instance *sr, sr_arp_hdr_t arp_hdr, char * interface)
+{
+    struct sr_arp_hdr arp_reply;
+
+    struct sr_if *interf;
+
+    interf = sr_get_interface(sr,req->packets->iface);
+
+    arp_reply.ar_hdr = htons(arp_hrd_ethernet);
+    arp_reply.ar_pro = htons(ethertype_ip);
+    arp_reply.ar_hln = ETHER_ADDR_LEN;
+    arp_reply.ar_pln = 4;//for ipv4
+    arp_reply.ar_op = htons(arp_op_reply);
+    memcpy(arp_reply.ar_sha, interface->addr, ETHER_ADDR_LEN);
+    memset(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
+    arp_reply.ar_sip = interface->ip;
+    arp_reply.ar_tip = arp_hdr->ar_sip;
+
+    sr_ethernet_hdr eth_hdr；
+    eth_hdr.ether_type = htons(ethertype_arp);
+    memset(eth_hdr.etherdhost,arp_hdr.ar_tha,ETHER_ADDR_LEN);
+    memset(eth_hdr.ether_shost,arp_hdr.ar_sha,ETHER_ADDR_LEN);
+
+    int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
+    uint8_t * pckt = malloc(len);
+    memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
+    memcpy(pckt+sizeof(eth_hdr),arp_hdr,sizeof(sr_arp_hdr_t));
+    print_hdrs(pckt, len);
+
+}
+
+void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
+{
+
+}
+
+void sr_send_arp_req(struct sr_instance *sr, struct sr_arpreq * req)
+{
+
+//    struct sr_rt *rt = sr_longest_prefix_match(sr, )
+
+ //   sr_send_packet(sr, pckt,len,interf);
+
+
+}
