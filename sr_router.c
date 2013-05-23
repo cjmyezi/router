@@ -112,7 +112,7 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
     else
     {
       sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *) (pckt + sizeof(sr_ethernet_hdr_t));
-      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)//if the hardware type is not ethernet or if the arp protocol is not ip, the report error
+      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)
       {
         fprintf(stderr, "Failed to process ARP request, invalid header\n" );
         return;
@@ -133,7 +133,7 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
           arp_req = sr_arpcache_insert(&sr->cahce, arp_hdr->ar_sha,arp_hdr->ar_sip);
           if (arp_req !=0)
           {
-//            sr_arpreq_send_packets(sr, arp_req);
+            /*sr_arpreq_send_packets(sr, arp_req);*/
           }
         }
 
@@ -156,7 +156,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
     arp_reply.ar_hrd = htons(arp_hrd_ethernet);
     arp_reply.ar_pro = htons(ethertype_ip);
     arp_reply.ar_hln = ETHER_ADDR_LEN;
-    arp_reply.ar_pln = 4; //for ipv4
+    arp_reply.ar_pln = 4; 
     arp_reply.ar_op = htons(arp_op_reply);
     memcpy(arp_reply.ar_sha, interf->addr, ETHER_ADDR_LEN);
     memcpy(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
@@ -180,3 +180,4 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * 
 {
   return;
 }
+
