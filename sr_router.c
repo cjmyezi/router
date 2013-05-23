@@ -406,6 +406,8 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   struct sr_rt *rt = find_longest_prefix_ip(sr,ip_pkt->ip_dst);
   if (!rt)
   {
+    fprintf(stderr, "entry not found\n");
+    print_addr_ip_int(ip_pkt->ip_dst);
     if (ip_pkt->ip_p != ip_protocol_icmp)
       send_icmp_packets(sr, 3, 0, ip_pkt, len);
     return;
