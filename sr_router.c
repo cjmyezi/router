@@ -120,7 +120,6 @@ void sr_handlepacket(struct sr_instance* sr,
 //        handle_arp_reply(sr,arp_hdr);
 //      else
 //        fprintf(stderr, "Unrecognized ARP Type: %d\n", arp_hdr->ar_op);
-    }
   }
   else {
     fprintf(stderr, "Unrecognized Ethernet Type: %d\n", ethtype);
@@ -131,13 +130,13 @@ void sr_handlepacket(struct sr_instance* sr,
 
 void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface)
 {
-  int minlength += sizeof(sr_arp_hdr_t);
+  int minlength = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     if (len < minlength)
       fprintf(stderr, "Failed to process ARP header, insufficient length\n");
     else
     {
       sr_arp_hdr_t *arp_hdr = (sr_arp_hdr_t *) (pckt + sizeof(sr_ethernet_hdr_t));
-      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ap_pro != 0x0800)//if the hardware type is not ethernet or if the arp protocol is not ip, the report error
+      if (arp_hdr->ar_hrd != arp_hrd_ethernet || arp_hdr->ar_pro != 0x0800)//if the hardware type is not ethernet or if the arp protocol is not ip, the report error
       {
         fprintf(stderr, "Failed to process ARP request, invalid header\n" );
         return;
@@ -178,20 +177,20 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
     interf = sr_get_interface(sr, interface);
 
-    arp_reply.ar_hdr = htons(arp_hrd_ethernet);
+    arp_reply.ar_hrd = htons(arp_hrd_ethernet);
     arp_reply.ar_pro = htons(ethertype_ip);
     arp_reply.ar_hln = ETHER_ADDR_LEN;
-    arp_reply.ar_pln = 4;//for ipv4
+    arp_reply.ar_pln = 4; //for ipv4
     arp_reply.ar_op = htons(arp_op_reply);
     memcpy(arp_reply.ar_sha, interf->addr, ETHER_ADDR_LEN);
-    memset(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
+    memcpy(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
     arp_reply.ar_sip = interf->ip;
     arp_reply.ar_tip = arp_hdr->ar_sip;
 
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
-    memset(eth_hdr.ether_dhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
-    memset(eth_hdr.ether_shost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_dhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_shost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
