@@ -140,7 +140,7 @@ fprintf(stderr, "tag1\n");
           }
         }
 
-        if(interf->ip == arp_hdr->ar_tip && arp_hdr->ar_op == arp_op_request)
+        if(interf->ip == arp_hdr->ar_tip && ntohs(arp_hdr->ar_op) == arp_op_request)
         {
           fprintf(stderr, "Call reply arp\n");
           reply_arp(sr,arp_hdr,interface);
