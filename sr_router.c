@@ -272,7 +272,7 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
     memcpy(pckt+sizeof(eth_hdr), arp_msg,sizeof(sr_arp_hdr_t));
     print_hdrs(pckt, len);
-    int err = sr_send_packet(sr,pckt,len,interface);
+    int err = sr_send_packet(sr,pckt,len,interf);
     if (err == -1)
       fprintf(stderr,"error sending arp request packet\n");
 
