@@ -344,7 +344,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     pkt->ip_sum = 0;
 
     struct sr_if * interf = sr->if_list;
-    if(!inter)
+    if(!interf)
     {
       fprintf(stderr, "Empty interface list, unable to send icmp message\n");
       free(icmp_hdr);
@@ -382,7 +382,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, int len)
 
   eth_p->ether_type = htons(ethertype_ip);
   memcpy(eth_p->ether_shost, interf->addr, ETHER_ADDR_LEN);
-  struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw);
+  struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw.s_addr);
   if (entry)
   {
     memcpy(eth_p->ether_dhost, entry->mac, ETHER_ADDR_LEN);
@@ -393,7 +393,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, int len)
   }
   else
   {
-    struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, (uint32_t)rt->gw, (uint8_t)eth_p, total_len, interf->name);
+    struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, (uint32_t)rt->gw.s_addr, (uint8_t)eth_p, total_len, interf->name);
     arp_req_sender(sr,req);
 
   }
