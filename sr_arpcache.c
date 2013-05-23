@@ -40,7 +40,7 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
     while(req)
     {
         next = req->next;
-        arp_req_sender(sr,request);        
+        arp_req_sender(sr,req);        
         req = next;
     }
 }
