@@ -165,18 +165,18 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
     arp_reply.ar_op = htons(arp_op_reply);
     memcpy(arp_reply.ar_sha, interf->addr, ETHER_ADDR_LEN);
     memcpy(arp_reply.ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN);
-    arp_reply.ar_sip = interf->ip;
+    arp_reply.ar_sip = arp_hdr->ar_tip;
     arp_reply.ar_tip = arp_hdr->ar_sip;
 
     struct sr_ethernet_hdr eth_hdr;
     eth_hdr.ether_type = htons(ethertype_arp);
-    memcpy(eth_hdr.ether_dhost,arp_hdr->ar_tha,ETHER_ADDR_LEN);
-    memcpy(eth_hdr.ether_shost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_dhost,arp_hdr->ar_sha,ETHER_ADDR_LEN);
+    memcpy(eth_hdr.ether_shost,interf->addr,ETHER_ADDR_LEN);
 
     int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     uint8_t * pckt = malloc(len);
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
-    memcpy(pckt+sizeof(eth_hdr),arp_hdr,sizeof(sr_arp_hdr_t));
+    memcpy(pckt+sizeof(eth_hdr),arp_reply,sizeof(sr_arp_hdr_t));
     print_hdrs(pckt, len);
 
 }
