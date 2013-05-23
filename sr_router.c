@@ -232,12 +232,12 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   }
 }
 
-void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr)
+void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr, unsigned int len)
 {
     unsigned int ip_len = ip_hdr->ip_hl*4;
     sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) ip_hdr + ip_len);
     unsigned int icmp_len = len - ip_len;
-    if (icmp->icmp_type == 8 && icmp->code == 0)
+    if (icmp->icmp_type == 8 && icmp->icmp_code == 0)
     {
       uint16_t r_cksm = icmp->icmp_sum;
       icmp->icmp_sum = 0;
@@ -329,7 +329,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
   {
     icmp_len = len - ip_hdr->ip_hl * 4;
     icmp_hdr = malloc(icmp_len);
-    memcpy(icmp_hdr, (uint8_t)(ip_hdr+ip_hdr->ip_hl*4),icmp_len);
+    memcpy(icmp_hdr, (uint8_t *)(ip_hdr+ip_hdr->ip_hl*4),icmp_len);
   }
   else if (type == 3 || type == 11) /*unreachable or time exceeded*/
   {
@@ -402,14 +402,14 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   if (entry)
   {
     memcpy(eth_p->ether_dhost, entry->mac, ETHER_ADDR_LEN);
-    int err = sr_send_packet(sr, (uint8_t) eth_p, total_len, interf->name);
+    int err = sr_send_packet(sr, (uint8_t *) eth_p, total_len, interf->name);
     if (err == -1)
       fprintf(stderr, "Failure to send out ip packet\n");
     free(entry);
   }
   else
   {
-    struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, (uint32_t)rt->gw.s_addr, (uint8_t)eth_p, total_len, interf->name);
+    struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, (uint32_t)rt->gw.s_addr, (uint8_t *)eth_p, total_len, interf->name);
     arp_req_sender(sr,req);
 
   }
