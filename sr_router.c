@@ -441,6 +441,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int len)
 {
   fprintf(stderr, "send ip packets\n");
+
   struct sr_rt *rt = find_longest_prefix_ip(sr,ip_pkt->ip_dst);
   if (!rt)
   {
@@ -460,11 +461,31 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   eth_p->ether_type = htons(ethertype_ip);
   memcpy(eth_p->ether_shost, interf->addr, ETHER_ADDR_LEN);
 
+			/* check ip and mac print */
+
+		fprintf(stderr, "debug check ip and mac in send ip packet");
+		/*print ip */
+		print_addr_ip_int(ip_pkt->ip_dst);
+
+
+
   print_hdr_eth((uint8_t *)eth_p);
 
   struct sr_arpentry * entry = sr_arpcache_lookup(&(sr->cache), (uint32_t)rt->gw.s_addr);
   if (entry)
   {
+	  		/* print mac  */
+	uint8_t cur;
+	int pos = 0;
+	 for (pos = 0; pos < ETHER_ADDR_LEN; pos++) {
+		cur = entry->mac[pos];    
+		if (pos > 0)
+		fprintf(stderr, ":");
+		fprintf(stderr, "%02X", cur);
+	 } 
+	 fprintf(stderr, "\n");
+
+
     memcpy(eth_p->ether_dhost, entry->mac, ETHER_ADDR_LEN);
     int err = sr_send_packet(sr, (uint8_t *) eth_p, total_len, interf->name);
     if (err == -1)
