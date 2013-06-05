@@ -131,7 +131,8 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
 
 		/* print mac  */
 	uint8_t cur;
-	 for (int pos = 0; pos < ETHER_ADDR_LEN; pos++) {
+	int pos = 0;
+	 for (pos = 0; pos < ETHER_ADDR_LEN; pos++) {
 		cur = arp_hdr->ar_sha[pos];    
 		if (pos > 0)
 		fprintf(stderr, ":");
