@@ -120,7 +120,26 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
         struct sr_if* interf;
 
         interf = sr_get_interface(sr,interface);
+
         arp_entry = sr_arpcache_lookup(&sr->cache, arp_hdr->ar_sip);
+		
+		/* check ip and mac print */
+
+		fprintf(stderr, "debug check ip and mac");
+		/*print ip */
+		print_addr_ip_int(arp_hdr->ar_sip);
+
+		/* print mac  */
+	uint8_t cur;
+	 for (int pos = 0; pos < ETHER_ADDR_LEN; pos++) {
+		cur = arp_hdr->ar_sha[pos];    
+		if (pos > 0)
+		fprintf(stderr, ":");
+		fprintf(stderr, "%02X", cur);
+	 } 
+	 fprintf(stderr, "\n");
+
+
         if (arp_entry != 0)
           free(arp_entry);
         else
