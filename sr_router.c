@@ -226,7 +226,7 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   {
     if(ip_hdr->ip_p == ip_protocol_icmp)
     {
-      fprintf(stderr, "identified is icmp\n");
+      fprintf(stderr, "identified as icmp\n");
       handle_icmp(sr,ip_hdr, len);
     }
     else if (ip_hdr->ip_p == 6 || ip_hdr->ip_p == 17)
@@ -260,7 +260,7 @@ void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr, unsigned int len)
   fprintf(stderr, "handling icmp\n");
     unsigned int ip_len = ip_hdr->ip_hl*4;
     sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) ip_hdr + ip_len);
-    unsigned int icmp_len = len - ip_len;
+    unsigned int icmp_len = len - ip_len - sizeof(sr_ethernet_hdr_t);
     if (icmp->icmp_type == 8 && icmp->icmp_code == 0)
     {
       uint16_t r_cksm = icmp->icmp_sum;
