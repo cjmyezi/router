@@ -108,6 +108,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
 void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char * interface){
   fprintf(stderr, "Start to handle arp request\n");
+  print_hdrs(pckt, len);
   int minlength = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
     if (len < minlength)
       fprintf(stderr, "Failed to process ARP header, insufficient length\n");
@@ -281,7 +282,9 @@ void handle_arp_req(struct sr_instance *sr, struct sr_arpreq * arp_req)
 {
     fprintf(stderr, "Start to request for arp\n");
     sr_arp_hdr_t * arp_msg = malloc(sizeof(sr_arp_hdr_t));
+		
 
+		
     struct sr_if *interf;
 
     struct sr_rt *rt = find_longest_prefix_ip(sr, arp_req->ip);
