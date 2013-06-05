@@ -466,7 +466,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   {
     memcpy(eth_p->ether_dhost, entry->mac, ETHER_ADDR_LEN);
     int err = sr_send_packet(sr, (uint8_t *) eth_p, total_len, interf->name);
-	print_hdr_eth((uint8_t *)eth_p);
+	print_hdrs((uint8_t *)eth_p, total_len);
     if (err == -1)
       fprintf(stderr, "Failure to send out ip packet\n");
     free(entry);
