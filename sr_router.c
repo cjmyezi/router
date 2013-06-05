@@ -186,6 +186,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
 
 void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* interface)
 {
+	  print_hdrs(pckt, len);
   sr_ip_hdr_t *ip_hdr;
 
   ip_hdr = (sr_ip_hdr_t *)(pckt + sizeof(sr_ethernet_hdr_t));
