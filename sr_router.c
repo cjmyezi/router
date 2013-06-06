@@ -210,7 +210,6 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
   sr_ip_hdr_t *ip_hdr;
 
   ip_hdr = (sr_ip_hdr_t *)(pckt + sizeof(sr_ethernet_hdr_t));
-  unsigned int ip_len = len - sizeof(sr_ethernet_hdr_t);
   uint16_t r_cksm = ip_hdr->ip_sum;
   ip_hdr->ip_sum = 0;
   uint16_t e_cksm = cksum(ip_hdr, ip_hdr->ip_hl*4);
@@ -398,8 +397,6 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 	pkt->ip_sum = 0;
     pkt->ip_sum = cksum(pkt, ip_hdr->ip_hl*4);
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
-	print_hdr_icmp(icmp_hdr);
-	print_hdr_ip(pkt);
     send_ip_packet(sr, pkt, total_len);
     free(pkt);
   }
@@ -458,8 +455,7 @@ void send_ip_packet(struct sr_instance * sr, sr_ip_hdr_t * ip_pkt, unsigned int 
   {
     fprintf(stderr, "entry not found\n");
     print_addr_ip_int(ip_pkt->ip_dst);
-    if (ip_pkt->ip_p != ip_protocol_icmp)
-      send_icmp_packets(sr, 3, 0, ip_pkt, len);
+      send_icmp_packets(sr, 3, 1, ip_pkt, len);
     return;
   }
 
