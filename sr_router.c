@@ -151,7 +151,8 @@ void handle_arp(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char *
             struct sr_packet * pkt;
             for (pkt = arp_req->packets; pkt!=NULL;pkt = pkt->next){
               memcpy(((sr_ethernet_hdr_t *) (pkt->buf))->ether_dhost, arp_hdr->ar_sha, ETHER_ADDR_LEN);
-              sr_send_packet(sr,pkt->buf,pkt->len,pkt->iface);
+			  print_hdrs(pkt->buf, pkt->len);
+			  sr_send_packet(sr,pkt->buf,pkt->len,pkt->iface);
             }
             sr_arpreq_destroy(&sr->cache, arp_req);
           }
