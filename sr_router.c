@@ -394,8 +394,6 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
-
-    pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 	print_hdr_icmp(icmp_hdr);
 	print_hdr_ip(pkt);
