@@ -407,12 +407,16 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
   {
 	sr_icmp_t3_hdr_t * icmp_hdr;
     icmp_hdr = malloc(sizeof(sr_icmp_t3_hdr_t));
+    unsigned int copy_len = len < 28 ? len:28;
+	memcpy(&icmp_hdr->data, ip_hdr, copy_len);
+    icmp_len = sizeof(sr_icmp_t3_hdr_t);
+	icmp_hdr->unused =0;
+
 	icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
-	icmp_hdr->unused =0;
-    unsigned int copy_len = len < 28 ? len:28;
-    icmp_len = sizeof(sr_icmp_hdr_t) + ip_hdr->ip_hl*4+8;
+
+	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 
 	unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
     sr_ip_hdr_t * pkt = malloc(total_len);
@@ -438,9 +442,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     }
     pkt->ip_src = interf->ip;
     memcpy((uint8_t *) pkt+pkt->ip_hl*4, icmp_hdr, icmp_len);
-    memcpy((uint8_t *) pkt+pkt->ip_hl*4 + sizeof(sr_icmp_hdr_t), ip_hdr, ip_hdr->ip_hl*4+8);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
-	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
     free(pkt);
