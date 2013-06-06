@@ -399,7 +399,6 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
     send_ip_packet(sr, pkt, total_len);
-    free(icmp_hdr);
     free(pkt);
   }
   else if (type == 3 || type == 11) /*unreachable or time exceeded*/
