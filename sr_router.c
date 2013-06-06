@@ -280,9 +280,8 @@ void handle_ip(struct sr_instance *sr, uint8_t * pckt, unsigned int len, char* i
 void handle_icmp(struct sr_instance *sr, sr_ip_hdr_t * ip_hdr, unsigned int len)
 {
   fprintf(stderr, "handling icmp\n");
-    unsigned int ip_len = ip_hdr->ip_hl*4;
-    sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) ip_hdr + ip_len);
-    unsigned int icmp_len = len - ip_len - sizeof(sr_ethernet_hdr_t);
+    sr_icmp_hdr_t * icmp = (sr_icmp_hdr_t *) ((uint8_t *) (ip_hdr + sizeof(sr_ip_hdr_t)));
+    unsigned int icmp_len = len - sizeof(sr_ip_hdr_t) - sizeof(sr_ethernet_hdr_t);
     if (icmp->icmp_type == 8 && icmp->icmp_code == 0)
     {
       uint16_t r_cksm = icmp->icmp_sum;
@@ -389,7 +388,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 	pkt->ip_src = ip_hdr->ip_dst;
 	pkt->ip_dst = ip_hdr->ip_src;
 
-	sr_icmp_hdr_t * icmp_hdr = pkt + sizeof(sr_ip_hdr_t);
+	sr_icmp_hdr_t * icmp_hdr = (sr_icmp_hdr_t *)((uint8_t *)pkt + sizeof(sr_ip_hdr_t));
 
     icmp_len = total_len - sizeof(sr_ip_hdr_t);
     icmp_hdr->icmp_type = type;
