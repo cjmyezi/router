@@ -194,6 +194,7 @@ void reply_arp(struct sr_instance *sr, sr_arp_hdr_t * arp_hdr, char * interface)
     uint8_t * pckt = malloc(len);
     memcpy(pckt, &eth_hdr,sizeof(eth_hdr));
     memcpy(pckt+sizeof(eth_hdr), arp_reply,sizeof(sr_arp_hdr_t));
+	print_hdrs(pckt,len);
     int err = sr_send_packet(sr,pckt,len,interface);
     if (err == -1)
       fprintf(stderr,"error sending arp reply packet\n");
