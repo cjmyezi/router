@@ -427,7 +427,7 @@ sr_icmp_t3_hdr_t * icmp_hdr;
     pkt->ip_dst = ip_hdr->ip_src;
     pkt->ip_sum = 0;
 	struct sr_rt * rt;
-	rt = find_longest_prefix_ip(sr, ip_in_addr(ip_hdr->ip_src));
+	rt = find_longest_prefix_ip(sr, ip_hdr->ip_src);
     struct sr_if * interf = sr_get_interface(sr, (char *)rt->interface);
     if(!interf)
     {
