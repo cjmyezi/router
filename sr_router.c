@@ -405,14 +405,14 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
   }
   else if (type == 3 || type == 11) /*unreachable or time exceeded*/
   {
-sr_icmp_t3_hdr_t * icmp_hdr;
+	sr_icmp_t3_hdr_t * icmp_hdr;
     icmp_hdr = malloc(sizeof(sr_icmp_t3_hdr_t));
 	icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
 	icmp_hdr->unused =0;
     unsigned int copy_len = len < 28 ? len:28;
-    icmp_len = sizeof(sr_icmp_t3_hdr_t);
+    icmp_len = sizeof(sr_icmp_hdr_t) + ip_hdr->ip_hl*4+8;
 
 	unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
     sr_ip_hdr_t * pkt = malloc(total_len);
@@ -441,7 +441,6 @@ sr_icmp_t3_hdr_t * icmp_hdr;
     memcpy((uint8_t *) pkt+pkt->ip_hl*4 + sizeof(sr_icmp_hdr_t), ip_hdr, ip_hdr->ip_hl*4+8);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
-    print_hdr_ip((uint8_t *)pkt);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
     free(pkt);
