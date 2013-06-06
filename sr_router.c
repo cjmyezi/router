@@ -381,20 +381,20 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
   if (type == 0) /*echo reply*/
   {
+    unsigned int total_len = len-sizeof(sr_ethernet_hdr_t);
     sr_ip_hdr_t * pkt = malloc(total_len);
-	memcpy(pkt, ip_hdr, len-size(sr_ethernet_hdr_t));
+	memcpy(pkt, ip_hdr, total_len);
 
 	pkt->ip_src = ip_hdr->ip_dst;
 	pkt->ip_dst = ip_hdr->ip_src;
 
-	  struct sr_icmp_hdr * icmp_hdr = pkt + ip_hdr->ip_hl*4;
+	struct sr_icmp_hdr * icmp_hdr = pkt + ip_hdr->ip_hl*4;
 
-    icmp_len = len - ip_hdr->ip_hl * 4-sizeof(sr_ethernet_hdr_t);
+    icmp_len = total_len - ip_hdr->ip_hl * 4;
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
 
-    unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
 
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
