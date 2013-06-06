@@ -382,7 +382,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
   if (type == 0) /*echo reply*/
   {
-    icmp_len = len - ip_hdr->ip_hl * 4;
+    icmp_len = len - ip_hdr->ip_hl * 4-sizeof(sr_ethernet_hdr_t);
     icmp_hdr = malloc(icmp_len);
     memcpy(icmp_hdr, (uint8_t *)(ip_hdr+ip_hdr->ip_hl*4),icmp_len);
   }
