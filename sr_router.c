@@ -407,29 +407,28 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
   {
 sr_icmp_t3_hdr_t * icmp_hdr;
     icmp_hdr = malloc(sizeof(sr_icmp_t3_hdr_t));
-	    icmp_hdr->icmp_type = type;
+	icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
 	icmp_hdr->unused =0;
     unsigned int copy_len = len < 28 ? len:28;
     icmp_len = sizeof(sr_icmp_t3_hdr_t);
-	    icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 
-	    unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
+	unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
     sr_ip_hdr_t * pkt = malloc(total_len);
-
     pkt->ip_hl = 5;
     pkt->ip_v = 4;
     pkt->ip_tos = 0;
     pkt->ip_len = htons(total_len);
-    pkt->ip_id = 0;
-    pkt->ip_off = 0;
+    pkt->ip_id = ip_hdr->ip_id;
+    pkt->ip_off = htons(0x4000);
     pkt->ip_ttl = 255;
     pkt->ip_p = ip_protocol_icmp;
     pkt->ip_dst = ip_hdr->ip_src;
     pkt->ip_sum = 0;
-
-    struct sr_if * interf = sr->if_list;
+	struct sr_rt * rt;
+	rt = find_longest_prefix_ip(sr, ip_in_addr(ip_hdr->ip_src));
+    struct sr_if * interf = sr_get_interface(sr, (char *)rt->interface);
     if(!interf)
     {
       fprintf(stderr, "Empty interface list, unable to send icmp message\n");
@@ -437,10 +436,11 @@ sr_icmp_t3_hdr_t * icmp_hdr;
       free(pkt);
       return;
     }
-      pkt->ip_src = interf->ip;
-
+    pkt->ip_src = interf->ip;
     memcpy((uint8_t *) pkt+pkt->ip_hl*4, icmp_hdr, icmp_len);
+    memcpy((uint8_t *) pkt+pkt->ip_hl*4 + sizeof(sr_icmp_hdr_t), ip_hdr, ip_hdr->ip_hl*4+8);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
+	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
     print_hdr_ip((uint8_t *)pkt);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
