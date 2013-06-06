@@ -388,14 +388,14 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 	pkt->ip_src = ip_hdr->ip_dst;
 	pkt->ip_dst = ip_hdr->ip_src;
 
-	struct sr_icmp_hdr * icmp_hdr = pkt + (ip_hdr->ip_hl*4);
+	struct sr_icmp_hdr * icmp_hdr = pkt + sizeof(sr_ip_hdr_t);
 
-    icmp_len = total_len - ip_hdr->ip_hl * 4;
+    icmp_len = total_len - sizeof(sr_ip_hdr_t);
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
 	pkt->ip_sum = 0;
-    pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
+    pkt->ip_sum = cksum(pkt,sizeof(sr_ip_hdr_t));
 	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
 	print_hdr_icmp(icmp_hdr);
 	print_hdr_ip(pkt);
