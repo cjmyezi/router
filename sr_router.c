@@ -388,7 +388,7 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
-	    icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
+	    icmp_hdr->icmp_sum = cksum(icmp_hdr,sizeof(sr_icmp_hdr_t));
 
 
     unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
