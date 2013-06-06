@@ -80,8 +80,6 @@ void sr_handlepacket(struct sr_instance* sr,
   printf("*** -> Received packet of length %d \n",len);
 
   print_hdrs(packet, len);
-  sr_print_routing_table(sr);
-  sr_print_if_list(sr);
  /* Ethernet */
   int minlength = sizeof(sr_ethernet_hdr_t);
   if (len < minlength) {
@@ -383,44 +381,23 @@ void send_icmp_packets(struct sr_instance * sr, uint8_t type, uint8_t code, sr_i
 
   if (type == 0) /*echo reply*/
   {
-	  struct sr_icmp_hdr * icmp_hdr;
+    sr_ip_hdr_t * pkt = malloc(total_len);
+	memcpy(pkt, ip_hdr, len-size(sr_ethernet_hdr_t));
+
+	pkt->ip_src = ip_hdr->ip_dst;
+	pkt->ip_dst = ip_hdr->ip_src;
+
+	  struct sr_icmp_hdr * icmp_hdr = pkt + ip_hdr->ip_hl*4;
 
     icmp_len = len - ip_hdr->ip_hl * 4-sizeof(sr_ethernet_hdr_t);
-    icmp_hdr = malloc(icmp_len);
     icmp_hdr->icmp_type = type;
     icmp_hdr->icmp_code = code;
     icmp_hdr->icmp_sum = 0;
-	    icmp_hdr->icmp_sum = cksum(icmp_hdr,sizeof(sr_icmp_hdr_t));
-
 
     unsigned int total_len = sizeof(sr_ip_hdr_t) + icmp_len;
-    sr_ip_hdr_t * pkt = malloc(total_len);
 
-    pkt->ip_hl = 5;
-    pkt->ip_v = 4;
-    pkt->ip_tos = 0;
-    pkt->ip_len = htons(total_len);
-    pkt->ip_id = 0;
-    pkt->ip_off = 0;
-    pkt->ip_ttl = 255;
-    pkt->ip_p = ip_protocol_icmp;
-    pkt->ip_dst = ip_hdr->ip_src;
-    pkt->ip_sum = 0;
-
-    struct sr_if * interf = sr->if_list;
-    if(!interf)
-    {
-      fprintf(stderr, "Empty interface list, unable to send icmp message\n");
-      free(icmp_hdr);
-      free(pkt);
-      return;
-    }
-
-      pkt->ip_src = ip_hdr->ip_dst;
-
-    memcpy((uint8_t *) pkt+pkt->ip_hl*4, icmp_hdr, icmp_len);
     pkt->ip_sum = cksum(pkt,pkt->ip_hl * 4);
-    print_hdr_ip((uint8_t *)pkt);
+	icmp_hdr->icmp_sum = cksum(icmp_hdr,icmp_len);
     send_ip_packet(sr, pkt, total_len);
     free(icmp_hdr);
     free(pkt);
